@@ -1,0 +1,189 @@
+// Kiwi — Fractional Shares Trading Platform
+// Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  clerkId       String    @unique
+  email         String    @unique
+  name          String?
+  imageUrl      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  portfolio       Portfolio?
+  orders          Order[]
+  scheduledOrders ScheduledOrder[]
+  articleProgress ArticleProgress[]
+
+  @@map("users")
+}
+
+model Portfolio {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalValue   Float     @default(0)
+  cashBalance  Float     @default(10000)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  positions  Position[]
+  snapshots  PortfolioSnapshot[]
+
+  @@map("portfolios")
+}
+
+model PortfolioSnapshot {
+  id          String    @id @default(cuid())
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  value       Float
+  date        DateTime  @default(now())
+
+  @@index([portfolioId, date])
+  @@map("portfolio_snapshots")
+}
+
+model Position {
+  id           String    @id @default(cuid())
+  portfolioId  String
+  portfolio    Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  symbol       String
+  companyName  String?
+  quantity     Float
+  avgCost      Float
+  currentPrice Float     @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([portfolioId, symbol])
+  @@index([portfolioId])
+  @@map("positions")
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alpacaOrderId   String?     @unique
+  symbol          String
+  companyName     String?
+  side            OrderSide
+  type            OrderType   @default(MARKET)
+  status          OrderStatus @default(PENDING)
+  quantity        Float?
+  notional        Float?
+  filledQty       Float?
+  filledAvgPrice  Float?
+  limitPrice      Float?
+  notes           String?
+  scheduledOrderId String?
+  scheduledOrder  ScheduledOrder? @relation(fields: [scheduledOrderId], references: [id])
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  filledAt        DateTime?
+
+  @@index([userId, createdAt])
+  @@index([symbol])
+  @@map("orders")
+}
+
+model ScheduledOrder {
+  id             String            @id @default(cuid())
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  symbol         String
+  companyName    String?
+  side           OrderSide
+  notional       Float
+  frequency      ScheduleFrequency
+  active         Boolean           @default(true)
+  nextRunAt      DateTime
+  lastRunAt      DateTime?
+  totalExecuted  Int               @default(0)
+  totalInvested  Float             @default(0)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  orders Order[]
+
+  @@index([userId])
+  @@index([active, nextRunAt])
+  @@map("scheduled_orders")
+}
+
+model Article {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  title       String
+  excerpt     String?
+  category    ArticleCategory
+  tags        String[]        @default([])
+  readTime    Int             @default(5)
+  published   Boolean         @default(true)
+  publishedAt DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  progress ArticleProgress[]
+
+  @@index([category])
+  @@map("articles")
+}
+
+model ArticleProgress {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  articleId String
+  article   Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  read      Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, articleId])
+  @@map("article_progress")
+}
+
+enum OrderSide {
+  BUY
+  SELL
+}
+
+enum OrderType {
+  MARKET
+  LIMIT
+  STOP
+  STOP_LIMIT
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  PARTIALLY_FILLED
+  FILLED
+  CANCELED
+  EXPIRED
+  REJECTED
+}
+
+enum ScheduleFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+enum ArticleCategory {
+  BASICS
+  STRATEGIES
+  FAQ
+  ADVANCED
+}
