@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { getNextRunDate } from "@/lib/utils";
 
@@ -12,36 +10,11 @@ const scheduledOrderSchema = z.object({
 });
 
 export async function GET() {
-  try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const user = await prisma.user.findUnique({ where: { clerkId: userId } });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const scheduledOrders = await prisma.scheduledOrder.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json({ scheduledOrders });
-  } catch (error) {
-    console.error("Get scheduled orders error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
+  return NextResponse.json({ scheduledOrders: [] });
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = await request.json();
     const parsed = scheduledOrderSchema.safeParse(body);
 
@@ -53,25 +26,21 @@ export async function POST(request: NextRequest) {
     }
 
     const { symbol, side, notional, frequency } = parsed.data;
-
-    const user = await prisma.user.findUnique({ where: { clerkId: userId } });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
     const nextRunAt = getNextRunDate(frequency);
 
-    const scheduledOrder = await prisma.scheduledOrder.create({
-      data: {
-        userId: user.id,
-        symbol,
-        side,
-        notional,
-        frequency,
-        nextRunAt,
-        active: true,
-      },
-    });
+    const scheduledOrder = {
+      id: `mock_sched_${Date.now()}`,
+      symbol,
+      side,
+      notional,
+      frequency,
+      active: true,
+      nextRunAt,
+      lastRunAt: null,
+      totalExecuted: 0,
+      totalInvested: 0,
+      createdAt: new Date().toISOString(),
+    };
 
     return NextResponse.json({ scheduledOrder });
   } catch (error) {

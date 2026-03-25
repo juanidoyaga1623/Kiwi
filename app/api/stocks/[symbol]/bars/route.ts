@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { polygonApi, getDateRange } from "@/lib/polygon";
 import type { Timeframe } from "@/types";
 
@@ -7,32 +6,16 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { symbol: string } }
 ) {
+  const symbol = params.symbol.toUpperCase();
+  const { searchParams } = new URL(request.url);
+  const timeframe = (searchParams.get("timeframe") as Timeframe) || "1M";
+  const { from, to, multiplier, timespan } = getDateRange(timeframe);
+
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const symbol = params.symbol.toUpperCase();
-    const { searchParams } = new URL(request.url);
-    const timeframe = (searchParams.get("timeframe") as Timeframe) || "1M";
-
-    const { from, to, multiplier, timespan } = getDateRange(timeframe);
-
-    const bars = await polygonApi.getAggregates(
-      symbol,
-      multiplier,
-      timespan,
-      from,
-      to
-    );
-
+    const bars = await polygonApi.getAggregates(symbol, multiplier, timespan, from, to);
     return NextResponse.json({ bars: bars || [], symbol, timeframe });
-  } catch (error) {
-    console.error("Bars fetch error:", error);
-    // Return mock candlestick data
-    const mockBars = generateMockBars(100);
-    return NextResponse.json({ bars: mockBars, mock: true });
+  } catch {
+    return NextResponse.json({ bars: generateMockBars(100), mock: true });
   }
 }
 
