@@ -9,8 +9,6 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import {
   Plus,
-  Pause,
-  Play,
   Trash2,
   Loader2,
   Clock,
@@ -36,7 +34,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { formatCurrency, formatNumber } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import type { ScheduledOrderRecord, ScheduleFrequency } from "@/types";
 
 const FREQUENCY_LABELS: Record<ScheduleFrequency, string> = {

@@ -30,7 +30,6 @@ interface TradeFormProps {
 
 export function TradeForm({
   symbol,
-  companyName,
   currentPrice,
   availableCash,
 }: TradeFormProps) {
