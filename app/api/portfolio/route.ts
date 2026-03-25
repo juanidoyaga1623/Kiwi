@@ -13,6 +13,15 @@ interface AlpacaAccount {
   cash: string;
 }
 
+interface PortfolioPosition {
+  id: string;
+  symbol: string;
+  companyName: string | null;
+  quantity: number;
+  avgCost: number;
+  currentPrice: number;
+}
+
 export async function GET() {
   try {
     const { userId } = await auth();
@@ -67,7 +76,7 @@ export async function GET() {
     }
 
     // Merge local positions with Alpaca data
-    const positions = user.portfolio.positions.map((pos) => {
+    const positions = user.portfolio.positions.map((pos: PortfolioPosition) => {
       const alpacaPos = alpacaPositions.find(
         (ap: AlpacaPosition) => ap.symbol === pos.symbol
       );
