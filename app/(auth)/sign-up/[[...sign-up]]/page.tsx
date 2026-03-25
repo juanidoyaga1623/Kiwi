@@ -1,20 +1,18 @@
-import { SignUp } from "@clerk/nextjs";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/dashboard");
+  }, [router]);
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary mb-4">
-            <span className="text-primary-foreground font-bold text-xl">K</span>
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">Creá tu cuenta</h1>
-          <p className="text-muted-foreground mt-1">
-            Empezá a invertir con $10.000 de paper trading
-          </p>
-        </div>
-        <SignUp />
-      </div>
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <p className="text-muted-foreground text-sm">Redirigiendo...</p>
     </div>
   );
 }
