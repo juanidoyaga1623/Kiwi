@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   AreaChart,
   Area,
@@ -13,26 +13,58 @@ import {
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
-import type { MockPortfolioSnapshot } from "@/types";
 
-interface PortfolioChartProps {
-  data: MockPortfolioSnapshot[];
-  title?: string;
+type Period = "1D" | "1W" | "1M" | "1Y" | "5Y";
+
+const PERIODS: Period[] = ["1D", "1W", "1M", "1Y", "5Y"];
+
+function generateData(period: Period) {
+  const now = Date.now();
+  const points: { date: number; value: number }[] = [];
+  let value = 10000;
+
+  const configs: Record<Period, { count: number; stepMs: number; volatility: number }> = {
+    "1D": { count: 48, stepMs: 30 * 60 * 1000, volatility: 30 },
+    "1W": { count: 56, stepMs: 3 * 60 * 60 * 1000, volatility: 80 },
+    "1M": { count: 30, stepMs: 24 * 60 * 60 * 1000, volatility: 150 },
+    "1Y": { count: 52, stepMs: 7 * 24 * 60 * 60 * 1000, volatility: 300 },
+    "5Y": { count: 60, stepMs: 30 * 24 * 60 * 60 * 1000, volatility: 600 },
+  };
+
+  const { count, stepMs, volatility } = configs[period];
+  const start = now - count * stepMs;
+
+  for (let i = 0; i <= count; i++) {
+    const change = (Math.random() - 0.42) * volatility;
+    value = Math.max(8000, value + change);
+    points.push({ date: start + i * stepMs, value: Math.round(value * 100) / 100 });
+  }
+
+  return points;
 }
 
-function CustomTooltip({
-  active,
-  payload,
-  label,
-}: {
+function formatDate(ts: number, period: Period) {
+  const d = new Date(ts);
+  switch (period) {
+    case "1D": return format(d, "HH:mm");
+    case "1W": return format(d, "EEE dd");
+    case "1M": return format(d, "dd/MM");
+    case "1Y": return format(d, "MMM yy");
+    case "5Y": return format(d, "MMM yy");
+  }
+}
+
+function CustomTooltip({ active, payload, period }: {
   active?: boolean;
-  payload?: { value: number }[];
-  label?: string;
+  payload?: { value: number; payload: { date: number } }[];
+  period: Period;
 }) {
   if (!active || !payload || !payload.length) return null;
   return (
     <div className="bg-card border border-border rounded-lg px-3 py-2 shadow-xl">
-      <p className="text-xs text-muted-foreground mb-1">{label}</p>
+      <p className="text-xs text-muted-foreground mb-1">
+        {formatDate(payload[0].payload.date, period)}
+      </p>
       <p className="text-sm font-bold text-foreground tabular-nums">
         {formatCurrency(payload[0].value)}
       </p>
@@ -40,21 +72,40 @@ function CustomTooltip({
   );
 }
 
-export function PortfolioChart({ data, title = "Evolución del Portfolio" }: PortfolioChartProps) {
-  const isPositive = useMemo(() => {
-    if (data.length < 2) return true;
-    return data[data.length - 1].value >= data[0].value;
-  }, [data]);
+interface PortfolioChartProps {
+  title?: string;
+}
 
+export function PortfolioChart({ title = "Evolución del Portfolio" }: PortfolioChartProps) {
+  const [period, setPeriod] = useState<Period>("1M");
+
+  const data = useMemo(() => generateData(period), [period]);
+
+  const isPositive = data[data.length - 1].value >= data[0].value;
   const color = isPositive ? "#34d399" : "#f87171";
-  const gradientId = isPositive ? "greenGradient" : "redGradient";
+  const gradientId = `grad-${period}`;
 
   return (
     <Card className="bg-card border-border">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
+        <div className="flex gap-1">
+          {PERIODS.map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-colors ${
+                period === p
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="h-48">
@@ -73,13 +124,7 @@ export function PortfolioChart({ data, title = "Evolución del Portfolio" }: Por
                 axisLine={false}
                 tickLine={false}
                 interval="preserveStartEnd"
-                tickFormatter={(v) => {
-                  try {
-                    return format(new Date(v), "dd/MM");
-                  } catch {
-                    return v;
-                  }
-                }}
+                tickFormatter={(v) => formatDate(v, period)}
               />
               <YAxis
                 tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
@@ -88,7 +133,7 @@ export function PortfolioChart({ data, title = "Evolución del Portfolio" }: Por
                 width={65}
                 tickFormatter={(v) => `$${(v / 1000).toFixed(1)}k`}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip period={period} />} />
               <Area
                 type="monotone"
                 dataKey="value"

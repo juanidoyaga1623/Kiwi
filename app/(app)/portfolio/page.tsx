@@ -6,7 +6,6 @@ import { formatCurrency, formatPercent } from "@/lib/utils";
 import {
   MOCK_POSITIONS,
   MOCK_PORTFOLIO_SUMMARY,
-  generatePortfolioSnapshots,
 } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingDown, Award } from "lucide-react";
@@ -14,7 +13,6 @@ import { TrendingDown, Award } from "lucide-react";
 export const metadata: Metadata = { title: "Portfolio" };
 
 export default function PortfolioPage() {
-  const snapshots = generatePortfolioSnapshots(90);
   const summary = MOCK_PORTFOLIO_SUMMARY;
   const positions = MOCK_POSITIONS;
 
@@ -62,7 +60,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* Chart */}
-      <PortfolioChart data={snapshots} title="Evolución del Portfolio (90 días)" />
+      <PortfolioChart title="Evolución del Portfolio" />
 
       {/* Best / Worst */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

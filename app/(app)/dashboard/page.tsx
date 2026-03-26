@@ -8,7 +8,6 @@ import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import {
   MOCK_POSITIONS,
   MOCK_PORTFOLIO_SUMMARY,
-  generatePortfolioSnapshots,
 } from "@/lib/mock-data";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +15,6 @@ import { Card, CardContent } from "@/components/ui/card";
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default function DashboardPage() {
-  const snapshots = generatePortfolioSnapshots(30);
   const summary = MOCK_PORTFOLIO_SUMMARY;
 
   return (
@@ -70,7 +68,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Chart */}
-      <PortfolioChart data={snapshots} />
+      <PortfolioChart />
 
       {/* Positions + Market */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
