@@ -10,51 +10,41 @@ import {
   generatePortfolioSnapshots,
 } from "@/lib/mock-data";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default function DashboardPage() {
-  const firstName = "Inversor";
   const snapshots = generatePortfolioSnapshots(30);
   const summary = MOCK_PORTFOLIO_SUMMARY;
 
-  const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "Buenos días" : hour < 18 ? "Buenas tardes" : "Buenas noches";
-
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {greeting}, {firstName}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Aquí está el resumen de tu portfolio
-          </p>
-        </div>
-        <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-          <Link href="/explore">
-            <Plus className="h-4 w-4 mr-2" />
-            Comprar
-          </Link>
-        </Button>
-      </div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
-          title="Valor Total"
-          value={formatCurrency(summary.totalValue)}
-          change={summary.dayPnl}
-          changePercent={summary.dayPnlPercent}
-          subtitle="Hoy"
-          highlight
-          className="col-span-2 lg:col-span-1"
-        />
+        <div className="col-span-2 lg:col-span-1 space-y-3">
+          <StatsCard
+            title="Valor Total"
+            value={formatCurrency(summary.totalValue)}
+            change={summary.dayPnl}
+            changePercent={summary.dayPnlPercent}
+            subtitle="Hoy"
+            highlight
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <Link
+              href="/explore"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-colors"
+            >
+              Comprar
+            </Link>
+            <Link
+              href="/explore"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-colors"
+            >
+              Vender
+            </Link>
+          </div>
+        </div>
         <StatsCard
           title="Efectivo disponible"
           value={formatCurrency(summary.cashBalance)}
