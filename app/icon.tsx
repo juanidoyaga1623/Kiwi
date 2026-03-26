@@ -11,14 +11,14 @@ export default function Icon() {
           width: 32,
           height: 32,
           borderRadius: 8,
-          background: "#22c55e",
+          background: "#000",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontFamily: "sans-serif",
           fontWeight: 700,
           fontSize: 20,
-          color: "#fff",
+          color: "#22c55e",
         }}
       >
         K

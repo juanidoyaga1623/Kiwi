@@ -11,17 +11,17 @@ export default function AppleIcon() {
           width: 180,
           height: 180,
           borderRadius: 40,
-          background: "#22c55e",
+          background: "#000",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           fontFamily: "sans-serif",
-          fontWeight: 700,
-          fontSize: 110,
-          color: "#fff",
+          gap: 0,
         }}
       >
-        K
+        <div style={{ fontSize: 60, lineHeight: 1 }}>🥝</div>
+        <div style={{ fontSize: 72, fontWeight: 700, color: "#22c55e", lineHeight: 1 }}>K</div>
       </div>
     ),
     { ...size }
