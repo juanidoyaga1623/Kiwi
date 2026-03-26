@@ -22,6 +22,13 @@ export const metadata: Metadata = {
     description: "Invertí en acciones fraccionadas desde $1 USD",
     type: "website",
   },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Kiwi",
+  },
+  formatDetection: { telephone: false },
 };
 
 export default function RootLayout({
