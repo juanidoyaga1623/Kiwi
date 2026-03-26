@@ -11,7 +11,7 @@ import {
 } from "@/lib/mock-data";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowRight } from "lucide-react";
+import { Plus } from "lucide-react";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -74,92 +74,16 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Chart + Market */}
+      {/* Chart */}
+      <PortfolioChart data={snapshots} />
+
+      {/* Positions + Market */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
-          <PortfolioChart data={snapshots} />
+          <PositionsList positions={MOCK_POSITIONS} limit={4} />
         </div>
         <div>
           <MarketMovers />
-        </div>
-      </div>
-
-      {/* Positions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div>
-          <PositionsList positions={MOCK_POSITIONS} limit={4} />
-        </div>
-
-        {/* Quick actions */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <Link
-              href="/explore"
-              className="flex flex-col items-start p-4 bg-card border border-border rounded-xl hover:border-primary/50 hover:bg-accent transition-all group"
-            >
-              <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center mb-3">
-                <span className="text-primary text-lg">🔍</span>
-              </div>
-              <p className="text-sm font-semibold text-foreground">Explorar</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Buscá acciones
-              </p>
-              <ArrowRight className="h-3.5 w-3.5 text-primary mt-2 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <Link
-              href="/scheduled"
-              className="flex flex-col items-start p-4 bg-card border border-border rounded-xl hover:border-primary/50 hover:bg-accent transition-all group"
-            >
-              <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center mb-3">
-                <span className="text-primary text-lg">⏰</span>
-              </div>
-              <p className="text-sm font-semibold text-foreground">DCA</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Compras programadas
-              </p>
-              <ArrowRight className="h-3.5 w-3.5 text-primary mt-2 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <Link
-              href="/education"
-              className="flex flex-col items-start p-4 bg-card border border-border rounded-xl hover:border-primary/50 hover:bg-accent transition-all group"
-            >
-              <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center mb-3">
-                <span className="text-primary text-lg">📚</span>
-              </div>
-              <p className="text-sm font-semibold text-foreground">Aprender</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Hub educacional
-              </p>
-              <ArrowRight className="h-3.5 w-3.5 text-primary mt-2 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <Link
-              href="/history"
-              className="flex flex-col items-start p-4 bg-card border border-border rounded-xl hover:border-primary/50 hover:bg-accent transition-all group"
-            >
-              <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center mb-3">
-                <span className="text-primary text-lg">📋</span>
-              </div>
-              <p className="text-sm font-semibold text-foreground">Historial</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Tus transacciones
-              </p>
-              <ArrowRight className="h-3.5 w-3.5 text-primary mt-2 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
-          {/* Paper trading notice */}
-          <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl">
-            <p className="text-xs font-medium text-primary mb-1">
-              Modo Paper Trading activado
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Estás usando dinero simulado. Tus órdenes se ejecutan en Alpaca
-              Paper Trading. Ideal para aprender sin riesgo real.
-            </p>
-          </div>
         </div>
       </div>
     </div>
